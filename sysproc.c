@@ -6,7 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
-
+#include "condvar.h"
 int
 sys_fork(void)
 {
@@ -89,3 +89,28 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+int
+sys_cv_signal(void)
+{
+  int i;
+  struct condvar *cv;
+  argint(0,&i);
+  cv = (struct condvar *)i;
+  wakeup(cv);
+  return 0;
+}
+
+int
+sys_cv_wait(void)
+{
+  int i;
+  struct condvar *cv;
+  argint(0,&i);
+  cv = (struct condvar *)i;
+  sleep(cv, &(cv->lk));
+  return 0;
+}
+// why doyouthinkwehadtoaddsystemcallsforthe
+ ///operations on condition variables? Why not just have these operations as functions in ulib.c as
+ //we did for the spinlock? 
+ 
